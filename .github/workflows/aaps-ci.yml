@@ -23,21 +23,15 @@ jobs:
     name: Build AAPS
     runs-on: ubuntu-latest
     steps:
-      - name: Generate Keystore
+      - name: Decode Keystore
         env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           mkdir -p "$RUNNER_TEMP/keystore"
-          keytool -genkey -v \
-            -keystore "$RUNNER_TEMP/keystore/keystore.jks" \
-            -alias "$KEY_ALIAS" \
-            -keyalg RSA -keysize 2048 -validity 36500 \
-            -storetype PKCS12 \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -keypass "$KEY_PASSWORD" \
-            -dname "CN=AAPS, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=KR"
+          echo "$SIGNING_KEY" | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
           echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
           echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
           echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
