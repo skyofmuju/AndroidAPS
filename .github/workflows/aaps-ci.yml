@@ -31,14 +31,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           mkdir -p "$RUNNER_TEMP/keystore"
-          python3 -c "
-import base64, os
-key = os.environ['SIGNING_KEY'].strip()
-data = base64.b64decode(key)
-with open(os.environ['RUNNER_TEMP'] + '/keystore/keystore.jks', 'wb') as f:
-    f.write(data)
-print('✅ Keystore decoded successfully, size:', len(data), 'bytes')
-"
+          python3 -c "import base64,os; data=base64.b64decode(os.environ['SIGNING_KEY'].strip()); open(os.environ['RUNNER_TEMP']+'/keystore/keystore.jks','wb').write(data); print('✅ size:',len(data))"
           echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
           echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
           echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
