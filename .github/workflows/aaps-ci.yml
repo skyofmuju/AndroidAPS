@@ -82,7 +82,7 @@ jobs:
       - name: Decode keystore file
         run: |
           mkdir -p "$RUNNER_TEMP/keystore"
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
+          echo "$KEYSTORE_BASE64" | tr -d '\n\r' | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
 
       - name: Validating keystore, alias and password
         run: |
