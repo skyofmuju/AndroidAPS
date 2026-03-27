@@ -50,7 +50,7 @@ jobs:
           else
             echo "ℹ️ KEYSTORE_SET not provided, using separate secrets."
             mkdir -p "$RUNNER_TEMP/keystore"
-            echo "$SIGNING_KEY" | tr -d '\n\r' | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
+            echo "$SIGNING_KEY" | tr -d '\n\r ' | base64 -d --ignore-garbage > "$RUNNER_TEMP/keystore/keystore.jks"
             echo "KEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}" >> $GITHUB_ENV
             echo "KEY_ALIAS=${{ secrets.ALIAS }}" >> $GITHUB_ENV
             echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
