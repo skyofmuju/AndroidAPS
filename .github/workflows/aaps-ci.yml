@@ -47,9 +47,7 @@ jobs:
             echo "✅ Keystore parameters extracted from KEYSTORE_SET"
           else
             echo "ℹ️ KEYSTORE_SET not provided, using separate secrets."
-            echo "KEYSTORE_BASE64<<EOF" >> $GITHUB_ENV
-            echo "${{ secrets.SIGNING_KEY }}" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
+            echo "KEYSTORE_BASE64=$(echo '${{ secrets.SIGNING_KEY }}' | tr -d '\n\r')" >> $GITHUB_ENV
             echo "KEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}" >> $GITHUB_ENV
             echo "KEY_ALIAS=${{ secrets.ALIAS }}" >> $GITHUB_ENV
             echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
@@ -82,7 +80,7 @@ jobs:
       - name: Decode keystore file
         run: |
           mkdir -p "$RUNNER_TEMP/keystore"
-          echo "$KEYSTORE_BASE64" | tr -d '\n\r' | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
 
       - name: Validating keystore, alias and password
         run: |
