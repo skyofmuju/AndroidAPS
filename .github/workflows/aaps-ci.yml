@@ -31,7 +31,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           mkdir -p "$RUNNER_TEMP/keystore"
-          echo "$SIGNING_KEY" | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
+          printf '%s' "$SIGNING_KEY" | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
           echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
           echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
           echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
