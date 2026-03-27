@@ -25,13 +25,14 @@ jobs:
     steps:
       - name: Decode Keystore
         env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           mkdir -p "$RUNNER_TEMP/keystore"
-          printf '%s' "$SIGNING_KEY" | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
+          cat << 'ENDSECRET' | tr -d '\n\r' | base64 -d > "$RUNNER_TEMP/keystore/keystore.jks"
+          ${{ secrets.SIGNING_KEY }}
+          ENDSECRET
           echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
           echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
           echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
