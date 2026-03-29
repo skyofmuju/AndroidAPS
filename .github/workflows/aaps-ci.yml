@@ -22,8 +22,6 @@ jobs:
   build:
     name: Build AAPS
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Decode Keystore
         env:
@@ -63,6 +61,7 @@ jobs:
 
       - name: Validating keystore, alias and password
         run: |
+          set -x
           echo "🔐 Validating keystore, alias and password"
           echo "test" > dummy.txt
           zip -q dummy.jar dummy.txt
@@ -73,16 +72,19 @@ jobs:
               -storepass "$KEYSTORE_PASSWORD" \
               -keypass "$KEY_PASSWORD" \
               dummy.jar "$KEY_ALIAS" > "$JARSIGNER_LOG" 2>&1; then
-            echo "❌ Keystore validation failed"
+            echo "❌ Either KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_PASSWORD, or KEY_ALIAS is incorrect"
+            echo "🔍 jarsigner error output:"
             cat "$JARSIGNER_LOG"
             rm -f "$JARSIGNER_LOG" dummy.jar
             exit 1
           fi
           rm -f "$JARSIGNER_LOG" dummy.jar
-          echo "✅ Keystore validated."
+          echo "✅ Keystore, alias, and key password are valid."
+          rm -f "$KEYTOOL_LOG"
+          echo "✅ Keystore and credentials validated."
 
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set BUILD_VARIANT
         run: |
@@ -109,7 +111,8 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
+
         with:
           java-version: 21
           distribution: 'temurin'
@@ -120,17 +123,17 @@ jobs:
 
       - name: Build APKs
         run: |
-          ./gradlew :app:assemble${{ env.BUILD_VARIANT }} :wear:assemble${{ env.BUILD_VARIANT }} \
-          -Dorg.gradle.jvmargs="-Xmx8g -XX:+UseParallelGC -Xss1024m" \
-          -Dkotlin.daemon.jvm.options="-Xmx2g" \
-          -Dkotlin.compiler.execution.strategy="in-process" \
-          -Dorg.gradle.daemon=true \
-          -Dorg.gradle.workers.max=8 \
-          -Dorg.gradle.caching=true \
-          -Pandroid.injected.signing.store.file="$RUNNER_TEMP/keystore/keystore.jks" \
-          -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
-          -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
-          -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+              ./gradlew :app:assemble${{ env.BUILD_VARIANT }} :wear:assemble${{ env.BUILD_VARIANT }} \
+              -Dorg.gradle.jvmargs="-Xmx8g -XX:+UseParallelGC -Xss1024m" \
+              -Dkotlin.daemon.jvm.options="-Xmx2g" \
+              -Dkotlin.compiler.execution.strategy="in-process" \
+              -Dorg.gradle.daemon=true \
+              -Dorg.gradle.workers.max=8 \
+              -Dorg.gradle.caching=true \
+              -Pandroid.injected.signing.store.file="$RUNNER_TEMP/keystore/keystore.jks" \
+              -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+              -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+              -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
 
       - name: Rename APKs with version
         run: |
@@ -138,7 +141,7 @@ jobs:
           mv wear/build/outputs/apk/${{ env.VARIANT_FLAVOR }}/${{ env.VARIANT_TYPE }}/*.apk aaps-wear-${{ env.VERSION }}${{ env.VERSION_SUFFIX }}.apk
 
       - name: Upload APKs as GitHub Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: aaps-${{ env.VERSION }}${{ env.VERSION_SUFFIX }}
           path: |
