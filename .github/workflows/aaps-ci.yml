@@ -22,8 +22,6 @@ jobs:
   build:
     name: Build AAPS
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Decode Keystore
         env:
@@ -63,8 +61,7 @@ jobs:
 
       - name: Validating keystore, alias and password
         run: |
-          echo "STOREPASS: $KEYSTORE_PASSWORD"
-          echo "KEYPASS: $KEY_PASSWORD"
+          set -x
           echo "🔐 Validating keystore, alias and password"
 
           # Create a dummy JAR file (quick method using zip)
@@ -119,7 +116,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Set up JDK
-                  uses: actions/setup-java@v4
+        uses: actions/setup-java@v4
         with:
           # When upgrading the JDK, please update this section accordingly as well.
           java-version: 21
