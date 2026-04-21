@@ -74,7 +74,7 @@ jobs:
             echo "KEYSTORE_BASE64=${{ secrets.SIGNING_KEY }}" >> $GITHUB_ENV
             echo "KEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}" >> $GITHUB_ENV
             echo "KEY_ALIAS=${{ secrets.ALIAS }}" >> $GITHUB_ENV
-            echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
 
             echo "::add-mask::$KEYSTORE_BASE64"
             echo "::add-mask::$KEYSTORE_PASSWORD"
